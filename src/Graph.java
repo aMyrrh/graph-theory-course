@@ -248,6 +248,29 @@ public class Graph {
         else
             throw new IllegalArgumentException("Граф неориентированный!");
     }
+
+    // Под висячей вершиной понимаем вершину степени 1 для неорграфа и вершины, для которой исходят, заходят
+    // или исходят и заходят пути только из одной вершины. Петли не влияют на результат
+    public List<String> getLeafVertices(){
+        Map <String, List<String>> allDistinctEdges = new HashMap<>();
+        List<String> result = new ArrayList<>();
+        List <Edge> edgeList = getListOfEdges();
+        for (Edge edge : edgeList) {
+            allDistinctEdges.putIfAbsent(edge.from(), new ArrayList<>());
+            allDistinctEdges.putIfAbsent(edge.to(), new ArrayList<>());
+            if (!edge.from().equals(edge.to()) &&
+                    !allDistinctEdges.get(edge.from()).contains(edge.to()) &&
+                    !allDistinctEdges.get(edge.to()).contains(edge.from())) {
+                allDistinctEdges.get(edge.from()).add(edge.to());
+                allDistinctEdges.get(edge.to()).add(edge.from());
+            }
+        }
+        for (Map.Entry<String, List<String>> stringListEntry : allDistinctEdges.entrySet()) {
+            if (stringListEntry.getValue().size() == 1)
+                result.add(stringListEntry.getKey());
+        }
+        return result;
+    }
 }
 
 

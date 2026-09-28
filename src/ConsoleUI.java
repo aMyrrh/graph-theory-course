@@ -1,5 +1,3 @@
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -195,13 +193,24 @@ public class ConsoleUI {
                             waitForEnter(reader);
                         }
                         break;
+                    case 11:
+                        clearConsole();
+                        List<String> edges = graph.getLeafVertices();
+                        if (edges.isEmpty()) {
+                            System.out.println("\"Висячих\" вершин в графе нет!");
+                        } else {
+                            System.out.println("\"Висячие\" вершины графа:");
+                            edges.forEach(System.out::println);
+                        }
+                        waitForEnter(reader);
+                        break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-10!");
+                        System.out.println("Введите верную команду - цифру 0-11!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-10!");
+                System.out.println("Введите верную команду - цифру 0-11!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -221,6 +230,7 @@ public class ConsoleUI {
         System.out.println("8 - Добавить граф для работы");
         System.out.println("9 - Поменять граф для работы");
         System.out.println("10 - Найти все входящие вершины для заданной (только для орграфа)");
+        System.out.println("11 - Получить все \"висячие\" вершины");
         System.out.println("0 - Выход");
     }
 

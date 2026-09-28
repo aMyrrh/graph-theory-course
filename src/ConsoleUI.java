@@ -1,5 +1,9 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleUI {
@@ -46,6 +50,10 @@ public class ConsoleUI {
     }
 
     public static void commandHandler(Scanner reader, Graph graph) {
+        List<Graph> graphList = new ArrayList<>();
+        List<String> fileNameList = new ArrayList<>();
+        graphList.add(graph);
+        fileNameList.add("Main Graph");
         LOOP:
         while (true) {
             clearConsole();
@@ -96,19 +104,87 @@ public class ConsoleUI {
                         try {
                             graph.saveInFile(new File(newFileName));
                             System.out.println("Граф сохранен в файл: " + newFileName);
+                            fileNameList.set(graphList.indexOf(graph), newFileName);
                             waitForEnter(reader);
                         } catch (RuntimeException e) {
                             System.out.println("При работе с файлом допущена ошибка!");
                             waitForEnter(reader);
                         }
                         break;
+                    case 7:
+                        clearConsole();
+                        System.out.println("Введите номер графа для копирования: ");
+                        int n = 0;
+                        for (int i = 0; i < graphList.size(); i++) {
+                            System.out.println((i + 1) + " " + fileNameList.get(i));
+                            n++;
+                        }
+                        try {
+                            int userInt = Integer.parseInt(reader.nextLine());
+                            if (userInt > n || userInt < 1) {
+                                System.out.println("Введите верную команду - цифру 1-" + n + "!");
+                                waitForEnter(reader);
+                                break;
+                            }
+                            Graph graphCopy = new Graph(graphList.get(userInt - 1));
+                            graphList.set(graphList.indexOf(graph), graphCopy);
+                            graph = graphCopy;
+                            System.out.println("Граф под номером " + userInt + " успешно скопирован!");
+                            waitForEnter(reader);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Введите верную команду - цифру 1-" + n + "!");
+                            waitForEnter(reader);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                            waitForEnter(reader);
+                        }
+                        break;
+                    case 8:
+                        clearConsole();
+                        System.out.println("Введите имя файла для работы с еще одним графом:");
+                        String file = reader.nextLine();
+                        try {
+                            graphList.add(new Graph(new File(file)));
+                            fileNameList.add(file);
+                            System.out.println("Граф успешно добавлен в список для работы! Выберите его командой 9!");
+                            waitForEnter(reader);
+                        } catch (IOException e) {
+                            System.out.println("Не удалось открыть файл: " + file);
+                            waitForEnter(reader);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                            waitForEnter(reader);
+                        }
+                        break;
+                    case 9:
+                        clearConsole();
+                        System.out.println("Выберите граф для работы:");
+                        int n1 = 0;
+                        for (int i = 0; i < graphList.size(); i++) {
+                            System.out.println((i + 1) + " " + fileNameList.get(i));
+                            n1++;
+                        }
+                        System.out.println("Выберите номер графа: ");
+                        try {
+                            int userInt = Integer.parseInt(reader.nextLine());
+                            if (userInt > n1 || userInt < 1) {
+                                throw new NumberFormatException("Введите верную команду - цифру 1-" + n1 + "!");
+                            }
+                            graph = graphList.get(userInt - 1);
+                            System.out.println("Граф выбран!");
+                            waitForEnter(reader);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Введите верную команду - цифру 1-" + n1 + "!");
+                            waitForEnter(reader);
+                        }
+                        break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-6!");
+                        System.out.println("Введите верную команду - цифру 0-9!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-6!");
+                System.out.println("Введите верную команду - цифру 0-9!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -124,6 +200,9 @@ public class ConsoleUI {
         System.out.println("4 - Добавить ребро");
         System.out.println("5 - Удалить ребро");
         System.out.println("6 - Сохранить граф в файл");
+        System.out.println("7 - Копировать граф из другого графа");
+        System.out.println("8 - Добавить граф для работы");
+        System.out.println("9 - Поменять граф для работы");
         System.out.println("0 - Выход");
     }
 

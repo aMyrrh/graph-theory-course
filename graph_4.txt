@@ -1,0 +1,9 @@
+directed
+A-B
+B-C
+C-C
+C-D
+D-A
+E-A
+F-E
+G

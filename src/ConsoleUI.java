@@ -58,7 +58,7 @@ public class ConsoleUI {
         while (true) {
             clearConsole();
             printMenu();
-            System.out.print("Введите номер команды: ");
+            System.out.print("\nВведите номер команды: ");
             try {
                 int user = Integer.parseInt(reader.nextLine());
                 switch (user) {
@@ -178,13 +178,30 @@ public class ConsoleUI {
                             waitForEnter(reader);
                         }
                         break;
+                    case 10:
+                        clearConsole();
+                        System.out.println("Введите имя вершины:");
+                        try {
+                            List<String> result = graph.getAllInputVertices(reader.nextLine());
+                            if (result.isEmpty())
+                                System.out.println("Входящих вершин не обнаружено!");
+                            else {
+                                System.out.println("Входящие вершины:");
+                                result.forEach(System.out::println);
+                            }
+                            waitForEnter(reader);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                            waitForEnter(reader);
+                        }
+                        break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-9!");
+                        System.out.println("Введите верную команду - цифру 0-10!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-9!");
+                System.out.println("Введите верную команду - цифру 0-10!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -203,6 +220,7 @@ public class ConsoleUI {
         System.out.println("7 - Копировать граф из другого графа");
         System.out.println("8 - Добавить граф для работы");
         System.out.println("9 - Поменять граф для работы");
+        System.out.println("10 - Найти все входящие вершины для заданной (только для орграфа)");
         System.out.println("0 - Выход");
     }
 

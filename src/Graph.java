@@ -229,6 +229,25 @@ public class Graph {
         }
         return result;
     }
+
+    public List<String> getAllInputVertices(String name){
+        if (directed) {
+            if (allVertices.containsKey(name)){
+                List<Edge> edgeList = getListOfEdges();
+                List<String> result = new ArrayList<>();
+                for (Edge edge : edgeList) {
+                    if (edge.to().equals(name)){
+                        result.add(edge.from());
+                    }
+                }
+                return result;
+            }else{
+                throw new IllegalArgumentException("Введите существующую вершину!");
+            }
+        }
+        else
+            throw new IllegalArgumentException("Граф неориентированный!");
+    }
 }
 
 

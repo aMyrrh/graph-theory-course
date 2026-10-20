@@ -14,7 +14,7 @@ public class ConsoleUI {
     public static Graph creationHandler(Scanner reader) {
         while (true) {
             System.out.print("Введите имя файла для графа " +
-                    "(для создания нового графа оставьте поле пустым): ");
+                    "(для создания нового графа оставьте поле пустым): \n");
             String file = reader.nextLine();
             if (file.isBlank()) {
                 boolean directed = false;
@@ -195,22 +195,34 @@ public class ConsoleUI {
                         break;
                     case 11:
                         clearConsole();
-                        List<String> edges = graph.getLeafVertices();
-                        if (edges.isEmpty()) {
+                        List<String> vertices = graph.getLeafVertices();
+                        if (vertices.isEmpty()) {
                             System.out.println("\"Висячих\" вершин в графе нет!");
                         } else {
                             System.out.println("\"Висячие\" вершины графа:");
-                            edges.forEach(System.out::println);
+                            vertices.forEach(System.out::println);
                         }
                         waitForEnter(reader);
                         break;
+                    case 12:
+                        clearConsole();
+                        Graph newGraph = graph.graphWithoutLeafVertices();
+                        System.out.println(newGraph);
+                        System.out.println();
+                        String name = fileNameList.get(graphList.indexOf(graph)) + " w/o leafs";
+                        graphList.add(newGraph);
+                        fileNameList.add(name);
+                        System.out.println("Граф успешно добавлен в список для работы под названием: \"" + name + "\"!" +
+                                "\nВыберите его командой 9!");
+                        waitForEnter(reader);
+                        break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-11!");
+                        System.out.println("Введите верную команду - цифру 0-12!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-11!");
+                System.out.println("Введите верную команду - цифру 0-12!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -231,6 +243,7 @@ public class ConsoleUI {
         System.out.println("9 - Поменять граф для работы");
         System.out.println("10 - Найти все входящие вершины для заданной (только для орграфа)");
         System.out.println("11 - Получить все \"висячие\" вершины");
+        System.out.println("12 - Получить граф без ребер ведущих в висячие вершины");
         System.out.println("0 - Выход");
     }
 

@@ -9,7 +9,7 @@ public class Graph {
     public Graph() {
     }
 
-    public Graph(boolean directed){
+    public Graph(boolean directed) {
         this.directed = directed;
     }
 
@@ -83,37 +83,54 @@ public class Graph {
         }
     }
 
+
     public void addVertex(String name) {
-        if (allVertices.containsKey(name)){
-            throw new IllegalArgumentException("Вершина уже существует!");
+        if (name.matches("[\\d\\p{L}]+")) {
+            if (allVertices.containsKey(name)) {
+                throw new IllegalArgumentException("Вершина уже существует!");
+            } else
+                allVertices.put(name, new Neighbors());
+        } else {
+            throw new IllegalArgumentException("Введено неверное имя вершины!\n" +
+                    "Имя может состоять только из букв и цифр!");
         }
-        else
-            allVertices.put(name, new Neighbors());
     }
 
 
     public void addEdge(String info) {
-        info = info.replaceFirst("-", " ");
-        String[] line = info.split(" ", 4);
-        if (!allVertices.containsKey(line[0]) || !allVertices.containsKey(line[1]))
-            throw new IllegalArgumentException("При вводе вершин допущена ошибка: Подобной пары вершин не существует!");
-        Map<String, EdgeInfo> map = allVertices.get(line[0]).neighborsMap;
-        Map<String, EdgeInfo> directedMap = allVertices.get(line[1]).neighborsMap;
-        if (map.containsKey(line[1])) {
-            throw new IllegalArgumentException("При вводе вершин допущена ошибка: Такое ребро уже существует!");
+        String pattern = "[\\d\\p{L}]+-[\\d\\p{L}]+";
+        if (info.matches(pattern) || info.matches(pattern + " (|-)\\d+(|(\\.\\d+))")
+                || info.matches(pattern + " (|-)\\d+(|(\\.\\d+)) ([ \\d\\p{L}\\p{Punct}])+")) {
+            info = info.replaceFirst("-", " ");
+            String[] line = info.split(" ", 4);
+            if (!allVertices.containsKey(line[0]) || !allVertices.containsKey(line[1]))
+                throw new IllegalArgumentException("При вводе вершин допущена ошибка: Подобной пары вершин не существует!");
+            Map<String, EdgeInfo> map = allVertices.get(line[0]).neighborsMap;
+            Map<String, EdgeInfo> directedMap = allVertices.get(line[1]).neighborsMap;
+            if (map.containsKey(line[1])) {
+                throw new IllegalArgumentException("При вводе вершин допущена ошибка: Такое ребро уже существует!");
+            } else {
+                EdgeInfo edgeInfo = new EdgeInfo();
+                try {
+                    edgeInfo.weight = (line.length > 2) ? Double.parseDouble(line[2]) : null;
+                } catch (NumberFormatException e) {
+                    throw new NumberFormatException("Неверный формат ввода веса!");
+                }
+                edgeInfo.label = (line.length > 3) ? line[3] : null;
+                map.put(line[1], edgeInfo);
+                if (!directed) {
+                    directedMap.put(line[0], edgeInfo);
+                }
+            }
         } else {
-            EdgeInfo edgeInfo = new EdgeInfo();
-            try {
-                edgeInfo.weight = (line.length > 2) ? Double.parseDouble(line[2]) : null;
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException("Неверный формат ввода веса!");
-            }
-            edgeInfo.label = (line.length > 3) ? line[3] : null;
-            map.put(line[1], edgeInfo);
-            if (!directed) {
-                directedMap.put(line[0], edgeInfo);
-            }
+            throw new IllegalArgumentException("Введен неверный формат добавления. \n" +
+                    "Правильный формат: Вершина1-Вершина2 [вес] [метка]");
         }
+    }
+
+
+    public void addEdge(Edge e) {
+        addEdge(e.toString());
     }
 
 
@@ -144,6 +161,18 @@ public class Graph {
         } else {
             throw new IllegalArgumentException("Введен неверный формат удаления. \n" +
                     "Правильный формат: from-to");
+        }
+    }
+
+    public void deleteEdge(String from, String to) {
+        if (allVertices.containsKey(from)
+                && allVertices.get(from).neighborsMap.containsKey(to)) {
+            allVertices.get(from).neighborsMap.remove(to);
+            if (!directed) {
+                allVertices.get(to).neighborsMap.remove(from);
+            }
+        } else {
+            throw new IllegalArgumentException("Введенного ребра не существует!");
         }
     }
 
@@ -203,7 +232,7 @@ public class Graph {
                     }
                     result.append(", ");
                 }
-                result.delete(result.lastIndexOf(","), result.lastIndexOf(",")+2);
+                result.delete(result.lastIndexOf(","), result.lastIndexOf(",") + 2);
                 result.append('\n');
             } else {
                 result.append(from.getKey()).append("\n");
@@ -212,7 +241,7 @@ public class Graph {
         return result.toString();
     }
 
-    public List<Edge> getListOfEdges(){
+    public List<Edge> getListOfEdges() {
         List<Edge> result = new ArrayList<>();
         for (Map.Entry<String, Neighbors> from : allVertices.entrySet()) {
             if (!allVertices.get(from.getKey()).neighborsMap.isEmpty()) {
@@ -230,31 +259,30 @@ public class Graph {
         return result;
     }
 
-    public List<String> getAllInputVertices(String name){
+    public List<String> getAllInputVertices(String name) {
         if (directed) {
-            if (allVertices.containsKey(name)){
+            if (allVertices.containsKey(name)) {
                 List<Edge> edgeList = getListOfEdges();
                 List<String> result = new ArrayList<>();
                 for (Edge edge : edgeList) {
-                    if (edge.to().equals(name)){
+                    if (edge.to().equals(name)) {
                         result.add(edge.from());
                     }
                 }
                 return result;
-            }else{
+            } else {
                 throw new IllegalArgumentException("Введите существующую вершину!");
             }
-        }
-        else
+        } else
             throw new IllegalArgumentException("Граф неориентированный!");
     }
 
     // Под висячей вершиной понимаем вершину степени 1 для неорграфа и вершины, для которой исходят, заходят
     // или исходят и заходят пути только из одной вершины. Петли не влияют на результат
-    public List<String> getLeafVertices(){
-        Map <String, List<String>> allDistinctEdges = new HashMap<>();
+    public List<String> getLeafVertices() {
+        Map<String, List<String>> allDistinctEdges = new HashMap<>();
         List<String> result = new ArrayList<>();
-        List <Edge> edgeList = getListOfEdges();
+        List<Edge> edgeList = getListOfEdges();
         for (Edge edge : edgeList) {
             allDistinctEdges.putIfAbsent(edge.from(), new ArrayList<>());
             allDistinctEdges.putIfAbsent(edge.to(), new ArrayList<>());
@@ -270,6 +298,22 @@ public class Graph {
                 result.add(stringListEntry.getKey());
         }
         return result;
+    }
+
+    // Решил сохранять петлю у висячей вершины, так как она не влияет на свойство листа в нашем контексте
+    public Graph graphWithoutLeafVertices() {
+        List<Edge> edges = getListOfEdges();
+        List<String> listOfLeafVertices = getLeafVertices();
+        Graph newGraph = new Graph(this);
+        for (String leafVertex : listOfLeafVertices) {
+            newGraph.deleteVertex(leafVertex);
+            newGraph.addVertex(leafVertex);
+            for (Edge e : edges) {
+                if (e.from().equals(leafVertex) && e.from().equals(e.to()))
+                    newGraph.addEdge(e);
+            }
+        }
+        return newGraph;
     }
 }
 
@@ -306,4 +350,8 @@ record Edge(String from,
             String to,
             Double weight,
             String label) {
+    @Override
+    public String toString() {
+        return from + "-" + to + ((weight == null) ? "" : " " + weight) + ((label == null) ? "" : " " + label);
+    }
 }

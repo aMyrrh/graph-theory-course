@@ -52,7 +52,6 @@ public class ConsoleUI {
         List<String> fileNameList = new ArrayList<>();
         graphList.add(graph);
         fileNameList.add("Main Graph");
-        LOOP:
         while (true) {
             clearConsole();
             printMenu();
@@ -61,7 +60,7 @@ public class ConsoleUI {
                 int user = Integer.parseInt(reader.nextLine());
                 switch (user) {
                     case 0:
-                        break LOOP;
+                        break;
                     case 1:
                         clearConsole();
                         System.out.println(graph);
@@ -216,13 +215,80 @@ public class ConsoleUI {
                                 "\nВыберите его командой 9!");
                         waitForEnter(reader);
                         break;
+                    case 13:
+                        clearConsole();
+                        System.out.println("13 - Найти путь, соединяющий вершины u1 и u2 и не проходящий через вершину v");
+                        System.out.print("Введите название вершины, соответствующей u1: ");
+                        String from, to, skip;
+                        from = reader.nextLine();
+                        System.out.println();
+                        System.out.print("Введите название вершины, соответствующей u2: ");
+                        to = reader.nextLine();
+                        System.out.println();
+                        System.out.print("Введите название вершины, соответствующей v: ");
+                        skip = reader.nextLine();
+                        List<String> path = graph.findPathAvoiding(from, to, skip);
+                        if (path.isEmpty()) {
+                            System.out.println("Пути не существует!");
+                        } else {
+                            for (String v : path) {
+                                System.out.println("Путь: " + String.join(" -> ", path));
+                            }
+                        }
+                        waitForEnter(reader);
+                        break;
+                    case 14:
+                        clearConsole();
+                        System.out.println("14 - Определить, от какой из вершин u1 и u2 путь до v короче (по числу дуг)");
+                        System.out.print("Введите название вершины, соответствующей u1: ");
+                        String first, second, target;
+                        first = reader.nextLine();
+                        System.out.println();
+                        System.out.print("Введите название вершины, соответствующей u2: ");
+                        second = reader.nextLine();
+                        System.out.println();
+                        System.out.print("Введите название вершины, соответствующей v: ");
+                        target = reader.nextLine();
+                        int d1 = graph.shortestDistance(first, target);
+                        int d2 = graph.shortestDistance(second, target);
+                        if (d1 == -1 && d2 == -1) {
+                            System.out.println("Ни из " + first + ", ни из " + second + " нельзя дойти до " + target + "!");
+                        } else if (d2 == -1) {
+                            System.out.println("Путь есть только из " + first + " (дуг: " + d1 + ").");
+                        } else if (d1 == -1) {
+                            System.out.println("Путь есть только из " + second + " (дуг: " + d2 + ").");
+                        } else if (d1 < d2) {
+                            System.out.println("Ближе " + first + " (дуг: " + d1 + " против " + d2 + ").");
+                        } else if (d2 < d1) {
+                            System.out.println("Ближе " + second + " (дуг: " + d2 + " против " + d1 + ").");
+                        } else {
+                            System.out.println("Расстояние одинаковое (дуг: " + d1 + ").");
+                        }
+                        waitForEnter(reader);
+                        break;
+                    case 15:
+                        clearConsole();
+                        Graph tree = graph.minimumSpanningTree();
+                        System.out.println("Каркас минимального веса (алгоритм Прима):");
+                        System.out.println(tree);
+                        double total = 0;
+                        for (Edge edge : tree.getListOfEdges())
+                            total += edge.weight();
+                        System.out.println("Суммарный вес каркаса: " + total);
+                        String treeName = fileNameList.get(graphList.indexOf(graph)) + " MST";
+                        graphList.add(tree);
+                        fileNameList.add(treeName);
+                        System.out.println("\nКаркас добавлен в список для работы под названием: \"" + treeName + "\"!" +
+                                "\nВыберите его командой 9, чтобы сохранить в файл (команда 6).");
+                        waitForEnter(reader);
+                        break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-12!");
+                        System.out.println("Введите верную команду - цифру 0-14!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-12!");
+                System.out.println("Введите верную команду - цифру 0-14!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -244,6 +310,9 @@ public class ConsoleUI {
         System.out.println("10 - Найти все входящие вершины для заданной (только для орграфа)");
         System.out.println("11 - Получить все \"висячие\" вершины");
         System.out.println("12 - Получить граф без ребер ведущих в висячие вершины");
+        System.out.println("13 - Найти путь, соединяющий вершины u1 и u2 и не проходящий через вершину v");
+        System.out.println("14 - Определить, от какой из вершин u1 и u2 путь до v короче (по числу дуг)");
+        System.out.println("15 - Определить каркас минимального веса в графе");
         System.out.println("0 - Выход");
     }
 

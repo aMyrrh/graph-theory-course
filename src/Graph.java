@@ -315,6 +315,107 @@ public class Graph {
         }
         return newGraph;
     }
+
+    public List<String> findPathAvoiding(String from, String to, String forbidden) {
+        checkVertexExists(from);
+        checkVertexExists(to);
+        checkVertexExists(forbidden);
+        List<String> path = new ArrayList<>();
+        if (from.equals(forbidden) || to.equals(forbidden))
+            return path;
+        Set<String> visited = new HashSet<>();
+        visited.add(forbidden);
+        dfs(from, to, visited, path);
+        return path;
+    }
+
+    private boolean dfs(String current, String target, Set<String> visited, List<String> path) {
+        visited.add(current);
+        path.add(current);
+        if (current.equals(target))
+            return true;
+        for (String next : allVertices.get(current).neighborsMap.keySet()) {
+            if (!visited.contains(next) && dfs(next, target, visited, path))
+                return true;
+        }
+        path.remove(path.size() - 1); // тупик: откатываемся на шаг назад
+        return false;
+    }
+
+
+    public int shortestDistance(String from, String to) {
+        checkVertexExists(from);
+        checkVertexExists(to);
+        Map<String, Integer> distance = new HashMap<>();
+        Queue<String> queue = new ArrayDeque<>();
+        distance.put(from, 0);
+        queue.add(from);
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            if (current.equals(to))
+                return distance.get(current);
+            for (String next : allVertices.get(current).neighborsMap.keySet()) {
+                if (!distance.containsKey(next)) {
+                    distance.put(next, distance.get(current) + 1);
+                    queue.add(next);
+                }
+            }
+        }
+        return -1;
+    }
+
+    private void checkVertexExists(String name) {
+        if (!allVertices.containsKey(name))
+            throw new IllegalArgumentException("Вершины \"" + name + "\" не существует!");
+    }
+
+
+    public Graph minimumSpanningTree() {
+        if (directed)
+            throw new IllegalArgumentException("Каркас строится только для неориентированного графа!");
+        if (allVertices.isEmpty())
+            throw new IllegalArgumentException("Граф пуст!");
+        for (Edge edge : getListOfEdges()) {
+            if (edge.weight() == null)
+                throw new IllegalArgumentException("У всех рёбер должен быть вес! Нет веса у ребра " +
+                        edge.from() + "-" + edge.to());
+        }
+
+        Graph tree = new Graph(false);
+        for (String vertex : allVertices.keySet())
+            tree.addVertex(vertex);
+
+        PriorityQueue<Edge> queue = new PriorityQueue<>(Comparator.comparingDouble(Edge::weight));
+        Set<String> inTree = new HashSet<>();
+
+        String start = allVertices.keySet().iterator().next();
+        inTree.add(start);
+        addEdgesToQueue(start, inTree, queue);
+
+        while (!queue.isEmpty() && inTree.size() < allVertices.size()) {
+            Edge edge = queue.poll();
+            if (inTree.contains(edge.to()))
+                continue;
+            EdgeInfo info = new EdgeInfo(edge.weight(), edge.label());
+            tree.allVertices.get(edge.from()).neighborsMap.put(edge.to(), info);
+            tree.allVertices.get(edge.to()).neighborsMap.put(edge.from(), info);
+            inTree.add(edge.to());
+            addEdgesToQueue(edge.to(), inTree, queue);
+        }
+
+        if (inTree.size() < allVertices.size())
+            throw new IllegalArgumentException("Граф несвязный: каркас построить нельзя!");
+        return tree;
+    }
+
+
+    private void addEdgesToQueue(String from, Set<String> inTree, PriorityQueue<Edge> queue) {
+        for (Map.Entry<String, EdgeInfo> neighbor : allVertices.get(from).neighborsMap.entrySet()) {
+            if (!inTree.contains(neighbor.getKey())) {
+                queue.add(new Edge(from, neighbor.getKey(), neighbor.getValue().weight, neighbor.getValue().label));
+            }
+        }
+    }
 }
 
 

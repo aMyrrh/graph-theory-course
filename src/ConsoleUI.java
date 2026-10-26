@@ -52,6 +52,7 @@ public class ConsoleUI {
         List<String> fileNameList = new ArrayList<>();
         graphList.add(graph);
         fileNameList.add("Main Graph");
+        LOOP:
         while (true) {
             clearConsole();
             printMenu();
@@ -60,7 +61,7 @@ public class ConsoleUI {
                 int user = Integer.parseInt(reader.nextLine());
                 switch (user) {
                     case 0:
-                        break;
+                        break LOOP;
                     case 1:
                         clearConsole();
                         System.out.println(graph);
@@ -221,19 +222,15 @@ public class ConsoleUI {
                         System.out.print("Введите название вершины, соответствующей u1: ");
                         String from, to, skip;
                         from = reader.nextLine();
-                        System.out.println();
                         System.out.print("Введите название вершины, соответствующей u2: ");
                         to = reader.nextLine();
-                        System.out.println();
                         System.out.print("Введите название вершины, соответствующей v: ");
                         skip = reader.nextLine();
                         List<String> path = graph.findPathAvoiding(from, to, skip);
                         if (path.isEmpty()) {
                             System.out.println("Пути не существует!");
                         } else {
-                            for (String v : path) {
-                                System.out.println("Путь: " + String.join(" -> ", path));
-                            }
+                            System.out.println("Путь: " + String.join(" -> ", path));
                         }
                         waitForEnter(reader);
                         break;
@@ -243,10 +240,8 @@ public class ConsoleUI {
                         System.out.print("Введите название вершины, соответствующей u1: ");
                         String first, second, target;
                         first = reader.nextLine();
-                        System.out.println();
                         System.out.print("Введите название вершины, соответствующей u2: ");
                         second = reader.nextLine();
-                        System.out.println();
                         System.out.print("Введите название вершины, соответствующей v: ");
                         target = reader.nextLine();
                         int d1 = graph.shortestDistance(first, target);
@@ -283,12 +278,12 @@ public class ConsoleUI {
                         waitForEnter(reader);
                         break;
                     default:
-                        System.out.println("Введите верную команду - цифру 0-14!");
+                        System.out.println("Введите верную команду - цифру 0-15!");
                         waitForEnter(reader);
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-14!");
+                System.out.println("Введите верную команду - цифру 0-15!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());

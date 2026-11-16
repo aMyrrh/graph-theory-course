@@ -457,6 +457,47 @@ public class Graph {
                         edge.from() + "-" + edge.to() + " имеет вес " + edge.weight());
         }
     }
+
+
+    public PathInfo bellmanFord(String from, String to) {
+        checkVertexExists(from);
+        checkVertexExists(to);
+        checkWeightsForShortestPaths();
+
+        Map<String, Double> distance = new HashMap<>();
+        Map<String, String> parent = new HashMap<>();
+        for (String vertex : allVertices.keySet())
+            distance.put(vertex, Double.POSITIVE_INFINITY);
+        distance.put(from, 0.0);
+
+        for (int pass = 1; pass < allVertices.size(); pass++) {
+            boolean changed = false;
+            for (Map.Entry<String, Neighbors> start : allVertices.entrySet()) {
+                double distanceToStart = distance.get(start.getKey());
+                if (Double.isInfinite(distanceToStart))
+                    continue;
+                for (Map.Entry<String, EdgeInfo> arc : start.getValue().neighborsMap.entrySet()) {
+                    double candidate = distanceToStart + arc.getValue().weight;
+                    if (candidate < distance.get(arc.getKey())) {
+                        distance.put(arc.getKey(), candidate);
+                        parent.put(arc.getKey(), start.getKey());
+                        changed = true;
+                    }
+                }
+            }
+            if (!changed)
+                break;
+        }
+
+        if (Double.isInfinite(distance.get(to)))
+            return new PathInfo(new ArrayList<>(), Double.POSITIVE_INFINITY);
+
+        List<String> path = new ArrayList<>();
+        for (String vertex = to; vertex != null; vertex = parent.get(vertex))
+            path.add(vertex);
+        Collections.reverse(path);
+        return new PathInfo(path, distance.get(to));
+    }
 }
 
 
@@ -500,4 +541,8 @@ record Edge(String from,
 
 // пара с вершиной и расстоянием до нее для алгоритма Дейкстры
 record VertexDistance(String vertex, double distance) {
+}
+
+// содержит кратчайший путь (вершины по порядку) и его длину
+record PathInfo(List<String> path, double length) {
 }

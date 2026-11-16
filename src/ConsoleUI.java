@@ -296,6 +296,21 @@ public class ConsoleUI {
                         System.out.println("Длина кратчайшего пути " + source + " -> " + end2 + ": " + formatDistance(distances.get(end2)));
                         waitForEnter(reader);
                         break;
+                    case 17:
+                        clearConsole();
+                        System.out.println("17 - Вывести кратчайшие пути из вершин u1 и u2 до v (алгоритм Беллмана-Форда)");
+                        System.out.print("Введите название вершины, соответствующей u1: ");
+                        String start1 = reader.nextLine();
+                        System.out.print("Введите название вершины, соответствующей u2: ");
+                        String start2 = reader.nextLine();
+                        System.out.print("Введите название вершины, соответствующей v: ");
+                        String finish = reader.nextLine();
+                        PathInfo result1 = graph.bellmanFord(start1, finish);
+                        PathInfo result2 = graph.bellmanFord(start2, finish);
+                        printShortestPath(result1, start1, finish);
+                        printShortestPath(result2, start2, finish);
+                        waitForEnter(reader);
+                        break;
                     default:
                         System.out.println("Введите верную команду - цифру 0-16!");
                         waitForEnter(reader);
@@ -329,6 +344,7 @@ public class ConsoleUI {
         System.out.println("14 - Определить, от какой из вершин u1 и u2 путь до v короче (по числу дуг)");
         System.out.println("15 - Определить каркас минимального веса в графе");
         System.out.println("16 - Вывести длины кратчайших путей от u до v1 и v2 (алгоритм Дейкстры)");
+        System.out.println("17 - Вывести кратчайшие пути из вершин u1 и u2 до v (алгоритм Беллмана-Форда)");
         System.out.println("0 - Выход");
     }
 
@@ -344,5 +360,14 @@ public class ConsoleUI {
 
     static String formatDistance(double distance) {
         return Double.isInfinite(distance) ? "пути нет" : String.valueOf(distance);
+    }
+
+    static void printShortestPath(PathInfo result, String from, String to) {
+        if (result.path().isEmpty()) {
+            System.out.println("Из " + from + " в " + to + " пути нет.");
+        } else {
+            System.out.println("Из " + from + " в " + to + ": " + String.join(" -> ", result.path()) +
+                    " (длина: " + result.length() + ")");
+        }
     }
 }

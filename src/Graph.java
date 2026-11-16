@@ -416,6 +416,47 @@ public class Graph {
             }
         }
     }
+
+
+    public Map<String, Double> dijkstra(String source) {
+        checkVertexExists(source);
+        checkWeightsForShortestPaths();
+
+        Map<String, Double> distance = new HashMap<>();
+        for (String vertex : allVertices.keySet())
+            distance.put(vertex, Double.POSITIVE_INFINITY);
+        distance.put(source, 0.0);
+
+        PriorityQueue<VertexDistance> queue = new PriorityQueue<>(Comparator.comparingDouble(VertexDistance::distance));
+        queue.add(new VertexDistance(source, 0.0));
+        Set<String> done = new HashSet<>();
+
+        while (!queue.isEmpty()) {
+            VertexDistance current = queue.poll();
+            if (!done.add(current.vertex()))
+                continue;
+            for (Map.Entry<String, EdgeInfo> neighbor : allVertices.get(current.vertex()).neighborsMap.entrySet()) {
+                double candidate = current.distance() + neighbor.getValue().weight;
+                if (candidate < distance.get(neighbor.getKey())) {
+                    distance.put(neighbor.getKey(), candidate);
+                    queue.add(new VertexDistance(neighbor.getKey(), candidate));
+                }
+            }
+        }
+        return distance;
+    }
+
+
+    private void checkWeightsForShortestPaths() {
+        for (Edge edge : getListOfEdges()) {
+            if (edge.weight() == null)
+                throw new IllegalArgumentException("У всех рёбер должен быть вес! Нет веса у ребра " +
+                        edge.from() + "-" + edge.to());
+            if (edge.weight() < 0)
+                throw new IllegalArgumentException("В графе не должно быть рёбер отрицательного веса! Ребро " +
+                        edge.from() + "-" + edge.to() + " имеет вес " + edge.weight());
+        }
+    }
 }
 
 
@@ -455,4 +496,8 @@ record Edge(String from,
     public String toString() {
         return from + "-" + to + ((weight == null) ? "" : " " + weight) + ((label == null) ? "" : " " + label);
     }
+}
+
+// пара с вершиной и расстоянием до нее для алгоритма Дейкстры
+record VertexDistance(String vertex, double distance) {
 }

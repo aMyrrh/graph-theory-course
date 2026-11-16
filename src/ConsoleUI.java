@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ConsoleUI {
@@ -277,13 +278,32 @@ public class ConsoleUI {
                                 "\nВыберите его командой 9, чтобы сохранить в файл (команда 6).");
                         waitForEnter(reader);
                         break;
-                    default:
-                        System.out.println("Введите верную команду - цифру 0-15!");
+                    case 16:
+                        clearConsole();
+                        System.out.println("16 - Вывести длины кратчайших путей от u до v1 и v2 (алгоритм Дейкстры)");
+                        System.out.print("Введите название вершины, соответствующей u: ");
+                        String source = reader.nextLine();
+                        System.out.print("Введите название вершины, соответствующей v1: ");
+                        String end1 = reader.nextLine();
+                        System.out.print("Введите название вершины, соответствующей v2: ");
+                        String end2 = reader.nextLine();
+                        Map<String, Double> distances = graph.dijkstra(source);
+                        if (!distances.containsKey(end1))
+                            throw new IllegalArgumentException("Вершины \"" + end1 + "\" не существует!");
+                        if (!distances.containsKey(end2))
+                            throw new IllegalArgumentException("Вершины \"" + end2 + "\" не существует!");
+                        System.out.println("Длина кратчайшего пути " + source + " -> " + end1 + ": " + formatDistance(distances.get(end1)));
+                        System.out.println("Длина кратчайшего пути " + source + " -> " + end2 + ": " + formatDistance(distances.get(end2)));
                         waitForEnter(reader);
+                        break;
+                    default:
+                        System.out.println("Введите верную команду - цифру 0-16!");
+                        waitForEnter(reader);
+
                 }
 
             } catch (NumberFormatException _) {
-                System.out.println("Введите верную команду - цифру 0-15!");
+                System.out.println("Введите верную команду - цифру 0-16!");
                 waitForEnter(reader);
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -308,6 +328,7 @@ public class ConsoleUI {
         System.out.println("13 - Найти путь, соединяющий вершины u1 и u2 и не проходящий через вершину v");
         System.out.println("14 - Определить, от какой из вершин u1 и u2 путь до v короче (по числу дуг)");
         System.out.println("15 - Определить каркас минимального веса в графе");
+        System.out.println("16 - Вывести длины кратчайших путей от u до v1 и v2 (алгоритм Дейкстры)");
         System.out.println("0 - Выход");
     }
 
@@ -319,5 +340,9 @@ public class ConsoleUI {
     public static void waitForEnter(Scanner scanner) {
         System.out.println("Нажмите Enter, чтобы вернуться в меню...");
         scanner.nextLine();
+    }
+
+    static String formatDistance(double distance) {
+        return Double.isInfinite(distance) ? "пути нет" : String.valueOf(distance);
     }
 }

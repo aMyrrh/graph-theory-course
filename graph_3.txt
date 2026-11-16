@@ -1,11 +1,12 @@
 directed
-A-B 5
-B-C 3.5
-C-D 2
+A-B 4
+A-C 1
+C-B 2
+B-D 5
+C-D 8
+C-E 9
+D-E 3
+E-F 2
+G-A 3
 D-D 1 петля
-D-A -4
-E-B 10 путь
-F-E 7
-F-G 6.2
-G-A 8
 H

@@ -1,9 +1,15 @@
-directed
-A-B
-B-C
-C-C
-C-D
-D-A
-E-A
-F-E
-G
+undirected
+A-B 7
+A-D 5
+B-C 8
+B-D 9
+B-E 6
+C-E 4
+D-E 15
+D-F 11
+E-F 10
+E-G 12
+F-G 13
+G-H 3 дорога
+F-H 14
+C-C 1 петля
